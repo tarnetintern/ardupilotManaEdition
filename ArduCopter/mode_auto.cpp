@@ -66,12 +66,39 @@ bool ModeAuto::init(bool ignore_checks)
         return false;
     }
 }
+bool ModeAuto::holdLastLocationOnMission(){
+        auto current_wp_lat=mission.get_current_nav_cmd().content.location.alt;
+        
+        AP_Mission::Mission_Command cmd;
+        cmd.id = MAV_CMD_NAV_WAYPOINT;
+        cmd.p1 = 0;
+        cmd.content.location = Location{
+            copter.current_loc.lat,
+            copter.current_loc.lng,
+            current_wp_lat,
+            Location::AltFrame::ABOVE_TERRAIN
+        };
+
+        uint16_t index_hold_location =0;
+        index_hold_location=mission.get_prev_nav_cmd_with_wp_index();
+        if (!mission.replace_cmd(index_hold_location,cmd)) {
+            return false;
+        }else{
+            return true;           
+        }
+}
 
 // stop mission when we leave auto mode
 void ModeAuto::exit()
 {
     if (copter.mode_auto.mission.state() == AP_Mission::MISSION_RUNNING) {
+
         copter.mode_auto.mission.stop();
+        if(!holdLastLocationOnMission()){
+            gcs().send_text(MAV_SEVERITY_CRITICAL, "Auto continue mission error");           
+        }
+        
+
     }
 #if HAL_MOUNT_ENABLED
     copter.camera_mount.set_mode_to_default();

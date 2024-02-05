@@ -489,6 +489,7 @@ public:
     bool allows_arming(AP_Arming::Method method) const override;
     bool is_autopilot() const override { return true; }
     bool in_guided_mode() const override { return _mode == SubMode::NAVGUIDED || _mode == SubMode::NAV_SCRIPT_TIME; }
+    bool holdLastLocationOnMission();
 
     // Auto modes
     enum class SubMode : uint8_t {
