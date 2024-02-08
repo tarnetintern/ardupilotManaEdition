@@ -55,6 +55,17 @@ bool AP_Mission_ChangeDetector::check_for_mission_change()
     mis_change_detect.curr_cmd_index = curr_cmd_idx;
     mis_change_detect.cmd_count = num_cmds;
 
+    //set Params mission start index 0
+    if(update_time_changed){
+    float value;
+    bool success = AP_Param::get("MISSION_LAST_W", value);
+    if (success) {
+    AP_Param::set_and_save_by_name("MISSION_LAST_W", 0);
+    } else {
+        //cannot found parameter
+    }
+    }
+
     // mission has changed if upcoming command contents have changed without the current command index changing
     return cmds_changed && !curr_cmd_idx_changed;
 }

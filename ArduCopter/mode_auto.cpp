@@ -78,13 +78,14 @@ bool ModeAuto::holdLastLocationOnMission(){
             current_wp_lat,
             Location::AltFrame::ABOVE_TERRAIN
         };
-
+        
         uint16_t index_hold_location =0;
         index_hold_location=mission.get_prev_nav_cmd_with_wp_index();
         if (!mission.replace_cmd(index_hold_location,cmd)) {
             return false;
         }else{
             mission.set_current_cmd(index_hold_location);
+            AP_Param::set_and_save_by_name("MISSION_LAST_W", index_hold_location);
             //gcs().send_text(MAV_SEVERITY_CRITICAL, "waypoint succusfuly setted!");      
             
             return true;           

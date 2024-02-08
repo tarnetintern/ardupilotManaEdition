@@ -43,6 +43,7 @@
 #define AP_MISSION_FIRST_REAL_COMMAND       1       // command #0 reserved to hold home position
 
 #define AP_MISSION_RESTART_DEFAULT          0       // resume the mission from the last command run by default
+#define AP_MISSION_LASTMISSIONINDEX_DEFAULT         0
 
 #define AP_MISSION_OPTIONS_DEFAULT          0       // Do not clear the mission when rebooting
 #define AP_MISSION_MASK_MISSION_CLEAR       (1<<0)  // If set then Clear the mission on boot
@@ -57,6 +58,8 @@
 #else
 #define AP_MISSION_SDCARD_FILENAME "mission.stg"
 #endif
+
+
 
 union PackedContent;
 
@@ -852,7 +855,7 @@ private:
     AP_Int16                _cmd_total;  // total number of commands in the mission
     AP_Int16                _options;    // bitmask options for missions, currently for mission clearing on reboot but can be expanded as required
     AP_Int8                 _restart;   // controls mission starting point when entering Auto mode (either restart from beginning of mission or resume from last command run)
-
+    AP_Int16                _lastMissionIndex;  // hold the last waypoint 
     // internal variables
     bool                    _force_resume;  // when set true it forces mission to resume irrespective of MIS_RESTART param.
     uint16_t                _repeat_dist; // Distance to repeat on mission resume (m), can be set with MAV_CMD_DO_SET_RESUME_REPEAT_DIST
@@ -910,6 +913,8 @@ private:
       format to take advantage of new packing
      */
     void format_conversion(uint8_t tag_byte, const Mission_Command &cmd, PackedContent &packed_content) const;
+
+    
 };
 
 namespace AP

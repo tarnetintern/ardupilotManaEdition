@@ -224,6 +224,13 @@ const AP_Param::Info Copter::var_info[] = {
     // @User: Standard
     GSCALAR(pilot_accel_z,  "PILOT_ACCEL_Z",    PILOT_ACCEL_Z_DEFAULT),
 
+    // @Param: MISSION_LAST_W
+    // @DisplayName: Hold the last waypoint
+    // @Description: please do not chance this parameter! Hold the last index of mission
+    // @Range: 0 32767
+    // @User: Advanced
+    GSCALAR(lastMissionIndex, "MISSION_LAST_W", MISSION_LAST_W_DEFAULT),
+
     // @Param: FS_THR_ENABLE
     // @DisplayName: Throttle Failsafe Enable
     // @Description: The throttle failsafe allows you to configure a software failsafe activated by a setting on the throttle input channel

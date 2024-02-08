@@ -385,6 +385,8 @@ public:
         k_param_vehicle = 257, // vehicle common block of parameters
         k_param_throw_altitude_min,
         k_param_throw_altitude_max,
+        
+        k_param_lastMissionIndex = 260, // continue mission
 
         // the k_param_* space is 9-bits in size
         // 511: reserved
@@ -430,6 +432,7 @@ public:
     AP_Int16        land_speed_high;
     AP_Int16        pilot_speed_up;    // maximum vertical ascending velocity the pilot may request
     AP_Int16        pilot_accel_z;               // vertical acceleration the pilot may request
+    AP_Int16        lastMissionIndex;  // hold the last waypoint 
 
     // Throttle
     //

@@ -15,7 +15,7 @@
 #include <AP_BoardConfig/AP_BoardConfig.h>
 #include <AP_ServoRelayEvents/AP_ServoRelayEvents_config.h>
 #include <RC_Channel/RC_Channel_config.h>
-
+#include <AP_Param/AP_Param.h>
 const AP_Param::GroupInfo AP_Mission::var_info[] = {
 
     // @Param: TOTAL
@@ -33,6 +33,14 @@ const AP_Param::GroupInfo AP_Mission::var_info[] = {
     // @Values: 0:Resume Mission, 1:Restart Mission
     // @User: Advanced
     AP_GROUPINFO("RESTART",  1, AP_Mission, _restart, AP_MISSION_RESTART_DEFAULT),
+/*
+    // @Param: MISSION_LAST_W
+    // @DisplayName: Hold the last waypoint
+    // @Description: please do not chance this parameter! Hold the last index of mission
+    // @Range: 0 32767
+    // @User: Advanced
+    AP_GROUPINFO("LASTW", 0, AP_Mission, _lastMissionIndex, AP_MISSION_LASTMISSIONINDEX_DEFAULT),
+*/
 
     // @Param: OPTIONS
     // @DisplayName: Mission options bitmask
@@ -104,7 +112,7 @@ void AP_Mission::init()
 /// start - resets current commands to point to the beginning of the mission
 ///     To-Do: should we validate the mission first and return true/false?
 void AP_Mission::start()
-{
+{   
     _flags.state = MISSION_RUNNING;
 
     reset(); // reset mission to the first command, resets jump tracking
@@ -114,6 +122,19 @@ void AP_Mission::start()
         // on failure set mission complete
         complete();
     }
+
+    float value;
+    bool success = AP_Param::get("MISSION_LAST_W", value);
+    if (success) {
+    set_current_cmd(value);    
+    //value+=5.2;
+    //AP_Param::set_and_save_by_name("MISSION_LAST_W", value);
+    } else {
+        set_current_cmd(0);
+    }
+
+    
+    
 }
 
 /// stop - stops mission execution.  subsequent calls to update() will have no effect until the mission is started or resumed
@@ -233,6 +254,7 @@ bool AP_Mission::starts_with_takeoff_cmd()
 */
 bool AP_Mission::continue_after_land_check_for_takeoff()
 {
+    return true;
     if (!continue_after_land()) {
         return false;
     }
@@ -288,6 +310,18 @@ bool AP_Mission::clear()
     _flags.do_cmd_loaded = false;
     _flags.state = MISSION_STOPPED;
     // return success
+
+
+    //set zero starting point
+
+    float value;
+    bool success = AP_Param::get("MISSION_LAST_W", value);
+    if (success) {
+    AP_Param::set_and_save_by_name("MISSION_LAST_W", 0);
+    } else {
+        //cannot found parameter
+    }
+
     return true;
 }
 
@@ -304,7 +338,8 @@ void AP_Mission::truncate(uint16_t index)
 /// update - ensures the command queues are loaded with the next command and calls main programs command_init and command_verify functions to progress the mission
 ///     should be called at 10hz or higher
 void AP_Mission::update()
-{
+{   
+    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "deneme yazisi");
     // exit immediately if not running or no mission commands
     if (_flags.state != MISSION_RUNNING || _cmd_total == 0) {
         return;
@@ -923,7 +958,7 @@ bool AP_Mission::write_cmd_to_storage(uint16_t index, const Mission_Command& cmd
     }
 
     // remember when the mission last changed
-    _last_change_time_ms = AP_HAL::millis();
+    //_last_change_time_ms = AP_HAL::millis();
 
     // return success
     return true;
@@ -2798,6 +2833,7 @@ void AP_Mission::reset_wp_history(void)
     _resume_cmd.index = AP_MISSION_CMD_INDEX_NONE;
     _flags.resuming_mission = false;
     _repeat_dist = 0;
+    
 }
 
 // store the latest reported position incase of mission exit and rewind resume
