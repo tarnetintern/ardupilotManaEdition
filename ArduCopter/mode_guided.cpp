@@ -68,6 +68,7 @@ void ModeGuided::run()
     case SubMode::WP:
         // run waypoint controller
         wp_control_run();
+        
         if (send_notification && wp_nav->reached_wp_destination()) {
             send_notification = false;
             gcs().send_mission_item_reached_message(0);
@@ -185,6 +186,7 @@ void ModeGuided::wp_control_start()
 // run guided mode's waypoint navigation controller
 void ModeGuided::wp_control_run()
 {
+    
     // if not armed set throttle to zero and exit immediately
     if (is_disarmed_or_landed()) {
         // do not spool down tradheli when on the ground with motor interlock enabled
